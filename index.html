@@ -168,6 +168,18 @@
 
   #map { flex: 1; z-index: 1; }
 
+  .priority-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #333;
+    font-size: 11px;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white;
+    white-space: nowrap;
+  }
+  .priority-label::before { display: none; }
+
   .coverage-note {
     margin-top: 14px;
     padding: 8px 12px;
@@ -310,7 +322,7 @@
   });
   map.addControl(new homeControl());
 
-  L.tileLayer('https://server.arcgis.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+  L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Esri, HERE, Garmin, FAO, NOAA, USGS',
     maxZoom: 19
   }).addTo(map);
@@ -361,6 +373,15 @@
         return { color: '#E8983E', fillColor: '#F0A830', fillOpacity: 0.5, weight: 1.5 };
       }
       return { color: '#999', fillColor: '#999', fillOpacity: 0.1, weight: 1 };
+    },
+    onEachFeature: function(feature, layer) {
+      if (feature.properties.LAD24NM) {
+        layer.bindTooltip(feature.properties.LAD24NM, {
+          permanent: true,
+          direction: 'center',
+          className: 'priority-label'
+        });
+      }
     }
   }).addTo(map);
 
