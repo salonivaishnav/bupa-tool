@@ -289,6 +289,27 @@
 <script>
   const map = L.map('map', { zoomControl: true }).setView([54.5, -3.5], 6);
 
+  // Home button
+  const homeControl = L.Control.extend({
+    options: { position: 'topleft' },
+    onAdd: function() {
+      const btn = L.DomUtil.create('div', 'leaflet-bar');
+      btn.innerHTML = '<a href="#" title="Home" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:white;font-size:18px;text-decoration:none;color:#333;">⌂</a>';
+      btn.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        map.setView([54.5, -3.5], 6);
+        if (currentMarker) map.removeLayer(currentMarker);
+        if (currentCircle) map.removeLayer(currentCircle);
+        document.getElementById('resultCard').className = 'result-card';
+        document.getElementById('postcodeInput').value = '';
+        return false;
+      };
+      return btn;
+    }
+  });
+  map.addControl(new homeControl());
+
   L.tileLayer('https://server.arcgis.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Esri, HERE, Garmin, FAO, NOAA, USGS',
     maxZoom: 19
