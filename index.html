@@ -376,7 +376,10 @@
     },
     onEachFeature: function(feature, layer) {
       if (feature.properties.LAD24NM) {
-        layer.bindTooltip(feature.properties.LAD24NM, {
+        const name = feature.properties.LAD24NM.replace(/\b\w+/g, function(txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+        layer.bindTooltip(name, {
           permanent: true,
           direction: 'center',
           className: 'priority-label'
