@@ -227,46 +227,46 @@
 
     <label class="layer-toggle">
       <input type="checkbox" checked onchange="toggleLayer('priority', this.checked)" />
-      <div class="layer-swatch" style="background:#4CAF50"></div>
-      <div class="layer-swatch" style="background:#F57C00; margin-left:-4px"></div>
+      <div class="layer-swatch" style="background:#A5C663"></div>
+      <div class="layer-swatch" style="background:#F0A830; margin-left:-4px"></div>
       Priority Areas
     </label>
 
     <label class="layer-toggle">
       <input type="checkbox" checked onchange="toggleLayer('buaAllPriority', this.checked)" />
-      <div class="layer-swatch" style="background:#555555"></div>
+      <div class="layer-swatch" style="background:#9B9B7B"></div>
       Built-Up Areas (All Priority)
     </label>
 
     <label class="layer-toggle">
       <input type="checkbox" checked onchange="toggleLayer('buaNonPriority', this.checked)" />
-      <div class="layer-swatch" style="background:#BDBDBD"></div>
+      <div class="layer-swatch" style="background:#D0D0D0"></div>
       Built-Up Areas (Non-Priority)
     </label>
 
     <label class="layer-toggle">
       <input type="checkbox" checked onchange="toggleLayer('roiBua', this.checked)" />
-      <div class="layer-swatch" style="background:#FF8A65"></div>
+      <div class="layer-swatch" style="background:#9B9B7B"></div>
       ROI BUA Areas
     </label>
 
     <label class="layer-toggle">
       <input type="checkbox" checked onchange="toggleLayer('niBua', this.checked)" />
-      <div class="layer-swatch" style="background:#4DB6AC"></div>
+      <div class="layer-swatch" style="background:#9B9B7B"></div>
       NI BUA Areas
     </label>
 
     <div class="section-title">Legend</div>
     <label class="layer-toggle" style="cursor:default">
-      <div class="layer-swatch" style="background:#4CAF50"></div>
+      <div class="layer-swatch" style="background:#A5C663"></div>
       Priority 1
     </label>
     <label class="layer-toggle" style="cursor:default">
-      <div class="layer-swatch" style="background:#F57C00"></div>
+      <div class="layer-swatch" style="background:#F0A830"></div>
       Priority 2
     </label>
     <label class="layer-toggle" style="cursor:default">
-      <div class="layer-swatch" style="background:#BDBDBD"></div>
+      <div class="layer-swatch" style="background:#D0D0D0"></div>
       BUA Non-Priority
     </label>
     <label class="layer-toggle" style="cursor:default">
@@ -289,8 +289,8 @@
 <script>
   const map = L.map('map', { zoomControl: true }).setView([54.5, -3.5], 6);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
+  L.tileLayer('https://server.arcgis.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Esri, HERE, Garmin, FAO, NOAA, USGS',
     maxZoom: 19
   }).addTo(map);
 
@@ -301,15 +301,15 @@
   layers.buaNonPriority = L.esri.featureLayer({
     url: 'https://services2.arcgis.com/40q5LO3kQh3qjhyV/arcgis/rest/services/BUA_Non_priority_/FeatureServer/28',
     style: function() {
-      return { color: '#BDBDBD', fillColor: '#BDBDBD', fillOpacity: 0.3, weight: 0.5 };
+      return { color: '#C0C0C0', fillColor: '#D0D0D0', fillOpacity: 0.4, weight: 0.3 };
     }
   }).addTo(map);
 
-  // BUA All Priority (dark grey)
+  // BUA All Priority (olive grey)
   layers.buaAllPriority = L.esri.featureLayer({
     url: 'https://services2.arcgis.com/40q5LO3kQh3qjhyV/arcgis/rest/services/BUA_All_Priority_/FeatureServer/27',
     style: function() {
-      return { color: '#555555', fillColor: '#555555', fillOpacity: 0.35, weight: 0.8 };
+      return { color: '#8B8B6B', fillColor: '#9B9B7B', fillOpacity: 0.45, weight: 0.5 };
     }
   }).addTo(map);
 
@@ -317,7 +317,7 @@
   layers.roiBua = L.esri.featureLayer({
     url: 'https://services2.arcgis.com/40q5LO3kQh3qjhyV/arcgis/rest/services/ROI_Built_Up_Areas/FeatureServer/17',
     style: function() {
-      return { color: '#FF8A65', fillColor: '#FF8A65', fillOpacity: 0.35, weight: 0.8 };
+      return { color: '#8B8B6B', fillColor: '#9B9B7B', fillOpacity: 0.45, weight: 0.5 };
     }
   }).addTo(map);
 
@@ -325,7 +325,7 @@
   layers.niBua = L.esri.featureLayer({
     url: 'https://services2.arcgis.com/40q5LO3kQh3qjhyV/arcgis/rest/services/NI/FeatureServer/16',
     style: function() {
-      return { color: '#4DB6AC', fillColor: '#4DB6AC', fillOpacity: 0.35, weight: 0.8 };
+      return { color: '#8B8B6B', fillColor: '#9B9B7B', fillOpacity: 0.45, weight: 0.5 };
     }
   }).addTo(map);
 
@@ -335,9 +335,9 @@
     style: function(feature) {
       const p = feature.properties.Priority;
       if (p === 'Priority 1') {
-        return { color: '#4CAF50', fillColor: '#4CAF50', fillOpacity: 0.35, weight: 1.5 };
+        return { color: '#8DB360', fillColor: '#A5C663', fillOpacity: 0.5, weight: 1.5 };
       } else if (p === 'Priority 2') {
-        return { color: '#F57C00', fillColor: '#F57C00', fillOpacity: 0.35, weight: 1.5 };
+        return { color: '#E8983E', fillColor: '#F0A830', fillOpacity: 0.5, weight: 1.5 };
       }
       return { color: '#999', fillColor: '#999', fillOpacity: 0.1, weight: 1 };
     }
