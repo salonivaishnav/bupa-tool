@@ -207,7 +207,7 @@
 </div>
 
 <div class="search-bar">
-  <input type="text" id="postcodeInput" placeholder="Enter a UK postcode (e.g. BT1 5GS, SW1A 1AA)" />
+  <input type="text" id="postcodeInput" placeholder="Enter a UK postcode or Irish Eircode (e.g. BT1 5GS, D02 X285)" />
   <button id="searchBtn" onclick="searchPostcode()">Search</button>
 </div>
 
@@ -287,7 +287,7 @@
     </label>
 
     <div class="coverage-note">
-      <strong>UK-wide coverage</strong> — includes Northern Ireland postcodes via postcodes.io
+      <strong>UK + Ireland coverage</strong> — includes Northern Ireland postcodes via postcodes.io and Republic of Ireland Eircodes via ArcGIS Geocoder
     </div>
 
     <div class="instructions">
@@ -482,7 +482,65 @@
       const data = await response.json();
 
       if (data.status !== 200 || !data.result) {
-        showStatus('Postcode not found. Please check and try again.', 'error');
+        // Fallback to ArcGIS World Geocoder for ROI (Eircode) and others
+        showStatus('Not a UK postcode — trying ROI/Eircode...', 'searching');
+        try {
+          const geoUrl = `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=${encodeURIComponent(input)}&f=json&outFields=*&maxLocations=1`;
+          const geoRes = await fetch(geoUrl);
+          const geoData = await geoRes.json();
+
+          if (geoData.candidates && geoData.candidates.length > 0) {
+            const candidate = geoData.candidates[0];
+            const lat = candidate.location.y;
+            const lon = candidate.location.x;
+            const address = candidate.address || input;
+            const country = candidate.attributes.Country || candidate.attributes.CntryName || 'N/A';
+
+            // Add marker
+            const markerIcon = L.divIcon({
+              className: 'custom-pin',
+              html: `<div style="width:22px;height:22px;background:#0079c1;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+              iconSize: [22, 22], iconAnchor: [11, 11]
+            });
+            currentMarker = L.marker([lat, lon], { icon: markerIcon }).addTo(map);
+            currentCircle = L.circle([lat, lon], {
+              radius: 150, color: '#0079c1', fillColor: '#0079c1', fillOpacity: 0.12, weight: 2
+            }).addTo(map);
+            map.setView([lat, lon], 14);
+
+            // Query Priority Areas
+            const queryUrl = `https://services2.arcgis.com/40q5LO3kQh3qjhyV/arcgis/rest/services/Priority_All/FeatureServer/22/query?geometry=${lon},${lat}&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects&outFields=Priority,LAD24NM&returnGeometry=false&f=json&inSR=4326`;
+            const priorityResponse = await fetch(queryUrl);
+            const priorityData = await priorityResponse.json();
+
+            let priority = null;
+            let la = 'N/A';
+            if (priorityData.features && priorityData.features.length > 0) {
+              priority = priorityData.features[0].attributes.Priority || null;
+              if (priorityData.features[0].attributes.LAD24NM) la = priorityData.features[0].attributes.LAD24NM;
+            }
+
+            const popupContent = `
+              <div style="font-family:Arial,sans-serif;min-width:200px;">
+                <div style="background:#003366;padding:8px 12px;margin:-10px -10px 10px -10px;border-radius:4px 4px 0 0;">
+                  <strong style="color:white;font-size:14px;">Postcode Information</strong>
+                </div>
+                <div style="font-size:13px;color:#333;">
+                  <p style="margin:4px 0;"><strong>Postcode:</strong> ${input.toUpperCase()}</p>
+                  <p style="margin:4px 0;"><strong>Priority:</strong> ${priority || 'Not in a Priority Area'}</p>
+                  <p style="margin:4px 0;"><strong>Address:</strong> ${address}</p>
+                  <p style="margin:4px 0;"><strong>Country:</strong> ${country}</p>
+                </div>
+              </div>`;
+            currentMarker.bindPopup(popupContent, { maxWidth: 280 }).openPopup();
+            showResult(input.toUpperCase(), priority, address, country);
+            hideStatus();
+          } else {
+            showStatus('Postcode not found. Please check and try again.', 'error');
+          }
+        } catch (geoErr) {
+          showStatus('Postcode not found. Please check and try again.', 'error');
+        }
         btn.disabled = false;
         btn.textContent = 'Search';
         return;
